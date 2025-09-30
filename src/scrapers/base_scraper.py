@@ -1,15 +1,15 @@
 import yaml
 import json
 from abc import ABC, abstractmethod
+from typing import Dict
 from src.utils.data_handler import DataHandler
 
 class BaseScraper(DataHandler):
-    def __init__(self, config_path: str = None, data_dir: str = None):
+    def __init__(self, scraper_config: Dict[str, dict] = None, data_dir: str = None):
         super().__init__(data_dir=data_dir)
         """Base class for all scrapers."""
-        
-        with open(config_path) as f:
-            self.config = yaml.safe_load(f)
+    
+        self.scraper_config = scraper_config
 
     @abstractmethod
     def scrape(self):
