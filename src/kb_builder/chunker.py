@@ -3,21 +3,24 @@ from typing import List, Union
 import json 
 import os 
 
+import tiktoken 
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
 from src.utils.data_handler import DataHandler
+from src.utils.utils import count_tokens
+
 
 class Chunker(DataHandler): 
     def __init__(self, data_dir: str = None, data_filepath: str = None, data: List[dict] = None):
         super().__init__(data_dir=data_dir, data_filepath=data_filepath, data=data)
         """
-        Base class for filters. Handles loading data.
-        TODO: 
-            - develop more complex chunking system. 
-            - config? 
+        Chunking class designed to group/divide filtered entries into usable & semantic chunks. 
         """
     
     def chunk(self, save_results=True): 
         """
-        Extermely simple chunking method, temporary.
+        Extermely simple chunking method. Takes each entry as a chunk. 
+        To be improved on later! 
         """
         chunks = []
         
