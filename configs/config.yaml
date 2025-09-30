@@ -1,0 +1,43 @@
+paths: 
+  data_dir: data/
+  raw_data_dir: ../data/raw/
+  filtered_data_dir: data/filtered/
+  chunk_data_dir: data/chunks/
+  model_dir: models/
+
+reddit_scraper:
+  credentials:
+    client_id: ...
+    client_secret: ...
+    user_agent: ...
+
+  search:
+    subreddits:
+      - changemyview
+      - AskReddit
+      - PoliticalDiscussion
+    queries:
+      - "diversity equity inclusion"
+      - "DEI"
+      - "inclusion AND leadership"
+      
+    sort: "top"
+    time_filter: "all"
+    limit: 20
+    rate_limit_delay: 0.1 # seconds 
+
+    filters:
+      n_comments: 20
+      min_post_score: 20
+      min_comment_score: 10
+      min_char_length: 100
+
+
+semantic_filter: 
+  topic: DEI
+  n_keywords: 5
+  similarity_threshold: 0.4
+  min_token_len: 70
+
+chunker: None
+
