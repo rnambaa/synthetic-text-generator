@@ -7,7 +7,7 @@ from src.scrapers.reddit_scraper import RedditScraper
 from src.kb_builder.semantic_filter import SemanticFilter
 from src.kb_builder.chunker import Chunker
 from src.RAG.retriever import Retriever
-from src.RAG.QA_format_generator import QA_generator
+from RAG.QA_generator import QA_generator
 
 
 
@@ -35,28 +35,31 @@ if __name__ == "__main__":
     #     data_filepath = "/Users/ryonamba/Documents/xN/text-gen-agent/data/filtered/reddit_data-2025-08-19 10:39.jsonl"
     # )
 
-    # chunker.chunk()
+    # chunker.advanced_chunk()
+    
+    
 
-    retriever = Retriever(
-        # data_dir="/Users/ryonamba/Documents/xN/text-gen-agent/data",
-        data_filepath = "/Users/ryonamba/Documents/xN/text-gen-agent/data/chunks/reddit_data-2025-08-19 10:39.jsonl",
-        model_dir="/Users/ryonamba/Documents/xN/text-gen-agent/models"
-    )
+    # retriever = Retriever(
+    #     # data_dir="/Users/ryonamba/Documents/xN/text-gen-agent/data",
+    #     data_filepath = "/Users/ryonamba/Documents/xN/text-gen-agent/data/chunks/reddit_data-2025-08-19 10:39.jsonl",
+    #     model_dir="/Users/ryonamba/Documents/xN/text-gen-agent/models"
+    # )
 
 
     # query = """What is your personal association with 'diversity'?"""
     # query = """In your opinion, what is effective in DEI communication and implementation at this company, and what is not effective?"""
     # query = """If you could make a wish to optimize the DEI strategy at this company, which area would you choose to increase support in implementing the DEI strategy?"""
-    query = """For you to participate actively in a DEI Workshop, the session must provide or avoid what exactly?"""
+    # query = """For you to participate actively in a DEI Workshop, the session must provide or avoid what exactly?"""
 
-    generator = QA_generator(
-        retriever=retriever,
-        model_dir="/Users/ryonamba/Documents/xN/text-gen-agent/models"
-    )
+    # generator = QA_generator(
+    #     retriever=retriever,
+    #     model_dir="/Users/ryonamba/Documents/xN/text-gen-agent/models"
+    # )
 
-    res = generator.generate(query)
+    # res = generator.generate(query)
 
-    print(res)
+    # print(res)
+    pass 
 
 
 
