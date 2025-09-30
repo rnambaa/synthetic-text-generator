@@ -1,3 +1,5 @@
+import tiktoken 
+
 def format_collection_name(original_name):
     """
     Converts a filename to a ChromaDB-compatible format.
@@ -28,3 +30,19 @@ def format_collection_name(original_name):
         formatted_name = "collection_" + formatted_name
     
     return formatted_name
+
+
+def count_tokens(text: str, model: str = "gpt-3.5-turbo") -> int:
+    try:
+        encoding = tiktoken.encoding_for_model(model)
+    except KeyError:
+        # Fallback to cl100k_base encoding if model not found
+        encoding = tiktoken.get_encoding("cl100k_base")
+    
+    tokens = encoding.encode(text)
+    return len(tokens)
+
+
+
+def min_max(x, min, max): 
+    return (x - min) / (max - min)
