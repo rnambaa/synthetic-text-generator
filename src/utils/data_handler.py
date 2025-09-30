@@ -1,3 +1,8 @@
+# add root dir 
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
 from pathlib import Path
 from typing import List, Union
 import json 
@@ -15,8 +20,10 @@ class DataHandler(ABC):
             data: List[dict] of data entries to process directly (instead of reading from storage).
         """
 
-        self.data_dir = Path(data_dir) if data_dir else None
-        self.data_filepath = Path(data_filepath) if data_filepath else None
+        self.root = Path(__file__).parent.parent.parent
+
+        self.data_dir = self.root / Path(data_dir) if data_dir else None
+        self.data_filepath = self.root / Path(data_filepath) if data_filepath else None
         self.data_filename = self.data_filepath.name if self.data_filepath else None
 
         self.data = data
