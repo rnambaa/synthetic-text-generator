@@ -3,11 +3,12 @@ from datetime import datetime
 from pathlib import Path
 import praw
 import time
+from typing import Dict 
 from src.scrapers.base_scraper import BaseScraper
 
 class RedditScraper(BaseScraper):
-    def __init__(self, config_path="config.yaml", data_dir: str = None):
-        super().__init__(config_path=config_path, data_dir=data_dir)
+    def __init__(self, scraper_config: Dict[str, dict] = None, data_dir: str = None):
+        super().__init__(scraper_config=scraper_config, data_dir=data_dir)
         """
         A Reddit scraper that collects posts and comments from specified subreddits.
         
@@ -21,12 +22,11 @@ class RedditScraper(BaseScraper):
         """
 
         self.data_dir = Path(data_dir)
-        creds = self.config["credentials"]
+
+        creds = self.scraper_config["credentials"]
         self.reddit = praw.Reddit(
             client_id=creds["client_id"],
             client_secret=creds["client_secret"],
-            # username=creds["username"],
-            # password=creds["password"],
             user_agent=creds["user_agent"]
         )
 
@@ -55,7 +55,7 @@ class RedditScraper(BaseScraper):
         """
          
         results = []
-        cfg = self.config
+        cfg = self.scraper_config
 
         print("Collecting data...")
 
@@ -71,7 +71,7 @@ class RedditScraper(BaseScraper):
                 )
 
                 for post in submissions:
-                    if post.score < cfg["filters"]["min_post_score"] or len(post.selftext) < cfg["filters"]["min_char_length"]:
+                    if post.score < cfg["search"]["filters"]["min_post_score"] or len(post.selftext) < cfg["search"]["filters"]["min_char_length"]:
                         continue
 
                     post_data = {
@@ -92,8 +92,8 @@ class RedditScraper(BaseScraper):
 
                     post.comment_sort = "top"
                     post.comments.replace_more(limit=0)
-                    for comment in post.comments[:cfg["filters"]["n_comments"]]:
-                        if comment.score < cfg["filters"]["min_comment_score"] or len(comment.body) < cfg["filters"]["min_char_length"]:
+                    for comment in post.comments[:cfg["search"]["filters"]["n_comments"]]:
+                        if comment.score < cfg["search"]["filters"]["min_comment_score"] or len(comment.body) < cfg["search"]["filters"]["min_char_length"]:
                             continue
 
                         comment_data = {
