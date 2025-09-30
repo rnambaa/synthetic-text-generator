@@ -44,15 +44,13 @@ class Retriever(DataHandler):
             embedding_model: SentenceTransformers model for generating embeddings.
             embedding_function: ChromaDB-compatible wrapper for the embedding model.
             collection: ChromaDB collection instance for storing and querying vectors.
-
-        TODO: 
-            - config? 
+            model_dir: Directory for storing model files.
         """
 
-        self.model_dir = Path(model_dir) if model_dir else None
+        self.model_dir = self.root / Path(model_dir) if model_dir else None
         self.client = chromadb.Client()
         # self.client = chromadb.PersistentClient(path="./chroma_db")  # NOTE: for Persistent client
-        self.collection_name = self.data_filename
+        self.collection_name = self.data_filename if self.data_filename else "temp_collection"
 
         self.embedding_model = SentenceTransformer(
             model_name_or_path="all-MiniLM-L6-v2", # use same model as the semantic filtering step 
@@ -81,7 +79,7 @@ class Retriever(DataHandler):
 
     def _load_vector_store(self, batch_size: int = 100) -> None:
         """
-        Load documents from JSONL file into ChromaDB collection. 
+        Load documents from self.data into ChromaDB collection in batches. 
         Each document is expected to have 'id', 'text', and optional metadata fields.
         """
 
@@ -89,41 +87,36 @@ class Retriever(DataHandler):
         ids = []
         metadatas = []
         
-        # Read documents in batches
-        with open(self.data_filepath, 'r', encoding='utf-8') as f:
+        for i, chunk in enumerate(self.data):
             batch_count = 0
-            for i, line in enumerate(f):
-                chunk = json.loads(line.strip())
-                
-                # Extract text content
-                text = chunk.get("text", "")
-                # Extract metadata (excluding text field to avoid duplication)
-                metadata = {k: ("None" if v is None else v) for k, v in chunk.items() if k != "text"}
-                del metadata['merge_ids'] # removed the 'merge_ids' field
-                # Use the chunk ID as provided in the data
-                chunk_id = chunk.get("id")
-                
-                if not chunk_id or not text:
-                    print(f"Warning: Skipping entry at line {i+1} due to missing id or text")
-                    continue
-                
-                documents.append(text)
-                ids.append(chunk_id)
-                metadatas.append(metadata)
+            # Extract text content
+            text = chunk.get("text", "")
+            # Extract metadata (excluding text field to avoid duplication)
+            metadata = {k: ("None" if v is None else v) for k, v in chunk.items() if k != "text"}
+            del metadata['merge_ids'] # removed the 'merge_ids' field
+            # Use the chunk ID as provided in the data
+            chunk_id = chunk.get("id")
+            
+            if not chunk_id or not text:
+                print(f"Warning: Skipping entry at line {i+1} due to missing id or text")
+                continue
+            
+            documents.append(text)
+            ids.append(chunk_id)
+            metadatas.append(metadata)
 
-                # add batch to create embeddings 
-                if len(documents) >= batch_size:
+            # add batch to create embeddings 
+            if len(documents) >= batch_size:
 
-                    self.collection.add(
-                        documents=documents,
-                        ids=ids,
-                        metadatas=metadatas
-                    )
-                    batch_count += 1
-                    print(f"Added batch {batch_count} ({len(documents)} documents)")
-                    documents = []
-                    ids = []
-                    metadatas = []
+                self.collection.add(
+                    documents=documents,
+                    ids=ids,
+                    metadatas=metadatas
+                )
+                batch_count += 1
+                documents = []
+                ids = []
+                metadatas = []
         
         # Add remaining documents
         if documents:
@@ -133,7 +126,6 @@ class Retriever(DataHandler):
                 metadatas=metadatas
             )
             batch_count += 1
-            print(f"Added final batch {batch_count} ({len(documents)} documents)")
             
         print(f"Successfully loaded {self.collection.count()} documents into Chroma")
 
