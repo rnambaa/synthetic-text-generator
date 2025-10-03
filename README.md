@@ -141,7 +141,7 @@ Each filtered entry can be stored in a JSONL file (`data/filtered/*.jsonl`)
 The retriever (`RAG/retriever.py`) loads the JSONL entries into a chromaDB collection. It uses query based retrieval using `all-MiniLM-L6-v2` embeddings and returns the top_k most relevant texts from the knowledge base, as is common with RAG pipelines. 
 
 
-The generator (`RAG/QA_generator.py`) uses the retrieved texts to generate responses. The output could be structured in different formats, in this project, this generator is designed to return semantically inspired responses to a specific question on the given topic in a Q&A format. 
+The generator (`RAG/QA_generator.py`) uses the retrieved texts to generate responses. The output could be structured in different formats. In this project, the generator is designed to return semantically inspired responses to a specific question on the given topic in a Q&A format. It will return a new response for each retrieved text. 
 
 ---
 
