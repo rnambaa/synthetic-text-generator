@@ -21,8 +21,6 @@ class RedditScraper(BaseScraper):
             reddit (praw.Reddit): PRAW Reddit instance for API interactions
         """
 
-        self.data_dir = Path(data_dir)
-
         creds = self.scraper_config["credentials"]
         self.reddit = praw.Reddit(
             client_id=creds["client_id"],
@@ -30,7 +28,7 @@ class RedditScraper(BaseScraper):
             user_agent=creds["user_agent"]
         )
 
-    def scrape(self, save_results=True):
+    def scrape(self, save_results=False):
         """
         Scrape Reddit posts and comments based on configured search parameters.
         

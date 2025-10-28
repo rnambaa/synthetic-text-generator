@@ -213,7 +213,7 @@ class SemanticFilter(BaseFilter):
         return topic_similarity_scores
     
 
-    def filter(self, save_results=True):
+    def filter(self, save_results=False):
         """
         Execute the complete semantic filtering pipeline on loaded data.
 

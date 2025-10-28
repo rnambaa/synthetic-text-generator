@@ -17,7 +17,7 @@ class Chunker(DataHandler):
         Chunking class designed to group/divide filtered entries into usable & semantic chunks. 
         """
     
-    def chunk(self, save_results=True): 
+    def chunk(self, save_results=False): 
         """
         Extermely simple chunking method. Takes each entry as a chunk. 
         To be improved on later! 

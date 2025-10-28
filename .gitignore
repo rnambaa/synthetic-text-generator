@@ -60,7 +60,7 @@ Thumbs.db
 htmlcov/
 
 # Models and data (your existing)
-models/
+/models/
 data/
 *.pkl
 *.joblib

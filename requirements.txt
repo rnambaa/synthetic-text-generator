@@ -13,8 +13,9 @@ langchain-community
 langchain-core
 langchain-text-splitters
 
-pydantic
-
 chromadb
 
 gpt4all
+
+fastapi
+pydantic

@@ -11,7 +11,7 @@ from langchain.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
 
-class QA_generator(DataHandler): 
+class QAgenerator(DataHandler): 
     """
     A Question-Answer generator that uses RAG to create contextual responses based on retrieved documents.
     
