@@ -160,7 +160,183 @@ source venv/bin/activate   # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
----
+
+## API 
+
+This project provides a REST API. The API handles data collection (scraping, filtering, chunking) and Q&A generation through separate endpoints with job-based tracking.
+
+### Quick Start
+
+1. **Start the API server:**
+   ```bash
+   uvicorn api.main:app --reload
+   ```
+
+2. **Access interactive documentation:**
+   - API docs: `http://localhost:8000/docs`
+   - Health check: `http://localhost:8000/health`
+
+### API Workflow
+
+The API follows a two-step process:
+
+1. **Data Collection** → Scrapes Reddit → Filters content → Creates chunks → Returns `job_id`
+2. **Q&A Generation** → Uses stored chunks → Generates answers → Returns results
+
+### Endpoints
+
+#### 1. Start Data Collection
+```http
+POST /api/v1/data-collection
+```
+
+**Request:**
+```json
+{
+  "reddit_scraper": {
+    "subreddits": ["MachineLearning", "artificial"],
+    "queries": ["GPT", "transformers"],
+    "sort": "top",
+    "time_filter": "all",
+    "limit": 20
+  },
+  "semantic_filter": {
+    "topic": "artificial intelligence",
+    "n_keywords": 5,
+    "similarity_threshold": 0.4,
+    "min_token_len": 70
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "job_id": "data-collection-uuid-here"
+}
+```
+
+#### 2. Check Job Status
+```http
+GET /jobs/{job_id}
+```
+
+**Response:**
+```json
+{
+  "type": "data-collection",
+  "status": "completed",
+  "current_stage": "done",
+  "document_info": {
+    "documents_scraped": 150,
+    "documents_after_filtering": 87,
+    "chunks_created": 342
+  },
+  "start_timestamp": "2024-01-15T10:30:00",
+  "end_timestamp": "2024-01-15T10:33:45"
+}
+```
+
+#### 3. Generate Q&A Answers
+```http
+POST /api/v1/generate-QA-answers
+```
+
+**Request:**
+```json
+{
+  "job_id": "data-collection-uuid-here",
+  "topic": "artificial intelligence",
+  "question": "What are the main benefits of transformer models?",
+  "n_answers": 5
+}
+```
+
+**Response:**
+```json
+{
+  "job_id": "QA-generation-uuid-here"
+}
+```
+
+### Example Usage
+
+```python
+import requests
+import time
+
+# 1. Start data collection
+collection_response = requests.post("http://localhost:8000/api/v1/data-collection", json={
+    "reddit_scraper": {
+        "subreddits": ["MachineLearning"],
+        "queries": ["GPT", "neural networks"],
+        "limit": 10
+    },
+    "semantic_filter": {
+        "topic": "artificial intelligence"
+    }
+})
+
+collection_job_id = collection_response.json()["job_id"]
+print(f"Data collection started: {collection_job_id}")
+
+# 2. Wait for completion (3-4 minutes typical)
+while True:
+    status = requests.get(f"http://localhost:8000/jobs/{collection_job_id}")
+    job_status = status.json()["status"]
+    
+    if job_status == "completed":
+        print("Data collection completed!")
+        break
+    elif job_status == "failed":
+        print("Data collection failed!")
+        break
+    
+    print(f"Status: {job_status}")
+    time.sleep(10)
+
+# 3. Generate Q&A
+generation_response = requests.post("http://localhost:8000/api/v1/generate-QA-answers", json={
+    "job_id": collection_job_id,
+    "topic": "AI research",
+    "question": "What are the latest developments in transformer architecture?",
+    "n_answers": 3
+})
+
+generation_job_id = generation_response.json()["job_id"]
+
+# 4. Check generation results
+generation_status = requests.get(f"http://localhost:8000/jobs/{generation_job_id}")
+results = generation_status.json()["results"]
+```
+
+### Configuration
+
+Ensure your `configs/config.yaml` contains Reddit API credentials:
+
+```yaml
+reddit_scraper:
+  credentials:
+    client_id: "your_reddit_client_id"
+    client_secret: "your_reddit_client_secret"
+    user_agent: "your_app_name"
+```
+
+### Response Status Codes
+
+- **200**: Success
+- **400**: Bad request (invalid parameters or job not completed)
+- **404**: Job ID not found
+- **422**: Validation error
+
+### Notes
+
+- Data collection typically takes 3-4 minutes depending on parameters
+- Jobs are tracked in-memory and will be lost on server restart
+- Multiple Q&A generations can be run using the same data collection job_id
+- All parameters have sensible defaults - only required fields need to be specified
+
+
 
 ## 🔧 Improvements!
 
